@@ -1,0 +1,88 @@
+plane = {img= nil, x = 400,y = 490, width = 110, height = 110}
+obstacle = {img= nil, x = 0,y = 0, width = 20, height = 20}
+screenWidth = 800
+screenHeight = 600
+isAlive = true
+function love.load()
+   plane.img = love.graphics.newImage("plane.png")
+   obstacle.img = love.graphics.newImage("obstacle.png")
+end
+
+function love.draw()
+  if not isAlive then
+    love.graphics.print('Umarles!', 400, 100)
+  end
+    love.graphics.draw(plane.img, plane.x, plane.y)
+    love.graphics.draw(obstacle.img, obstacle.x, obstacle.y)
+  
+end
+
+function love.update(dt)
+  if not isAlive then
+    return
+  end
+  moveObstacle(dt)
+   if love.keyboard.isDown("left") then
+      local moveTo = plane.x - 100 * dt
+      if canMoveX(moveTo,  plane.width) then
+        plane.x = moveTo
+      end
+   end
+   if love.keyboard.isDown("right") then
+      local moveTo = plane.x + 100 * dt 
+      if canMoveX(moveTo, plane.width) then
+        plane.x = moveTo
+      end
+   end
+   if love.keyboard.isDown("up") then
+      local moveTo = plane.y - 100 * dt 
+      if canMoveY(moveTo,  plane.height) then
+        plane.y = moveTo
+      end
+   end
+   if love.keyboard.isDown("down") then
+      local moveTo = plane.y + 100 * dt 
+      if canMoveY(moveTo,  plane.height) then
+        plane.y = moveTo
+      end
+   end
+   isAlive = not isColliding(plane, obstacle)
+   print(isAlive)
+end
+
+function canMoveX(futurePosX, objectWidth)
+  return futurePosX >= 0 and futurePosX < (screenWidth - objectWidth)
+end
+
+function canMoveY(futurePosY,objectHeight)
+return futurePosY >= 0 and futurePosY < (screenHeight - objectHeight)
+end
+
+function moveObstacle(dt) 
+   local futurePosX = obstacle.x  + randomNumber(isPositive())
+   local futurePosY = obstacle.y + randomNumber(isPositive())
+   if canMoveX(futurePosX, obstacle.width) and canMoveY(futurePosY, obstacle.height) then
+    obstacle.x = futurePosX
+    obstacle.y = futurePosY
+   end
+end
+
+function isPositive() 
+  return math.random() > 0.5
+end
+
+function randomNumber(isPositive) 
+  rand = math.random(1, 5)
+  if isPositive then
+    return rand
+  else 
+    return -rand
+  end
+end
+
+function isColliding(plane, obstacle) 
+  return plane.x < obstacle.x + obstacle.width and
+    plane.x + plane.width > obstacle.x and
+    plane.y < obstacle.y + obstacle.height and
+    plane.y + plane.height > obstacle.y
+end
